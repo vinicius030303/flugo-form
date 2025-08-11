@@ -32,7 +32,7 @@ export const StepForm = ({ onFinish }: { onFinish?: () => void }) => {
     const finalData = {
       ...formData,
       ...data,
-      status: "ativo", // ✅ status garantido no envio
+      status: "ativo",
     };
 
     try {
