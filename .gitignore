@@ -1,0 +1,5 @@
+# Ignora arquivos de variáveis de ambiente
+.env.env
+.env
+.env
+.env
