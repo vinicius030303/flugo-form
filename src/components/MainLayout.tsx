@@ -3,7 +3,9 @@ import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useColorMode } from "../App";
 import GroupIcon from '@mui/icons-material/Group';
-import { useState, MouseEvent } from "react";
+// ⬇️ Alterado para importar MouseEvent como tipo
+import { useState } from "react";
+import type { MouseEvent } from "react";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import logo from '../assets/logo.png';
 import '../global.css'; // Importa o CSS global
@@ -131,7 +133,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 
           <IconButton
             onClick={() => {
-              setDarkMode((prev: number) => !prev);
+              // ⬇️ Corrigido tipo para boolean, já que o state é booleano
+              setDarkMode((prev: boolean) => !prev);
               toggleColorMode();
             }}
             size="small"

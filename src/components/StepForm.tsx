@@ -1,5 +1,6 @@
-
-import React, { useState } from "react";
+// ⬇️ Alterado: import React agora só como tipo, já que JSX não precisa dele, mas mantemos para evitar erro de tipos
+import type React from "react";
+import { useState } from "react";
 import {
   Box,
   Step,
@@ -23,6 +24,7 @@ export const StepForm = ({ onFinish }: { onFinish?: () => void }) => {
 
   const next = (data: any) => {
     setFormData((prev: any) => ({ ...prev, ...data }));
+    // ⬇️ Tipagem ajustada para number, pois activeStep é number
     setActiveStep((prev: number) => prev + 1);
   };
 
