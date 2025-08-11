@@ -1,4 +1,3 @@
-// ⬇️ Alterado: import React apenas como tipo
 import type React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
