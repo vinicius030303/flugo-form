@@ -1,0 +1,41 @@
+﻿rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // ===========================
+    // Departamentos
+    // ===========================
+    match /departamentos/{depId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() &&
+                    (request.resource.data.colaboradoresCount >= 0);
+      // 🔒 Só permite delete se contador == 0
+      allow delete: if isSignedIn() && resource.data.colaboradoresCount == 0;
+    }
+
+    // ===========================
+    // Colaboradores
+    // ===========================
+    match /colaboradores/{id} {
+      allow read, create, update, delete: if isSignedIn();
+    }
+
+    // ===========================
+    // Logs de auditoria
+    // ===========================
+    match /logs/{logId} {
+      allow create: if isSignedIn();  // app grava
+      allow read, update, delete: if false; // clientes não leem/alteram
+    }
+
+    // Bloqueio padrão
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

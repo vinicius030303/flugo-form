@@ -1,76 +1,182 @@
-import type React from "react";
 import { useState } from "react";
 import {
-  Box,
+  Paper,
+  Stepper,
   Step,
   StepLabel,
-  Stepper,
-  Paper,
+  Box,
+  Snackbar,
+  Alert,
+  type AlertColor,
 } from "@mui/material";
-
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  writeBatch,
+  doc,
+  increment,
+  getDoc,          // ⬅️ PEGAMOS o nome do depto pelo ID
+} from "firebase/firestore";
+import { db } from "../services/firebase";
 import { StepOne } from "./forms/StepOne";
 import { StepTwo } from "./forms/StepTwo";
 import { StepThree } from "./forms/StepThree";
+import StepReview from "./forms/StepReview";
+import { useAuth } from "@/contexts/AuthContext";
+import { logEvent } from "@/services/logs";
 
-import { db } from "../services/firebase";
-import { collection, addDoc } from "firebase/firestore";
+const steps = ["Dados pessoais", "Endereço", "Profissional", "Revisão"];
 
-const steps = ["Dados pessoais", "Endereço", "Profissional"];
+type SnackbarState = {
+  open: boolean;
+  message: string;
+  severity: AlertColor;
+};
 
 export const StepForm = ({ onFinish }: { onFinish?: () => void }) => {
   const [activeStep, setActiveStep] = useState(0);
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any>({ status: "ativo" });
+
+  const { user } = useAuth();
+
+  const [snack, setSnack] = useState<SnackbarState>({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const showSnack = (message: string, severity: AlertColor = "success") =>
+    setSnack({ open: true, message, severity });
+
+  const handleSnackClose = () => setSnack((s) => ({ ...s, open: false }));
 
   const next = (data: any) => {
     setFormData((prev: any) => ({ ...prev, ...data }));
-    setActiveStep((prev: number) => prev + 1);
+    setActiveStep((prev) => prev + 1);
+    try {
+      const el = document.querySelector('[role="dialog"]') || window;
+      // @ts-ignore
+      el.scrollTo?.({ top: 0, behavior: "smooth" });
+    } catch {}
   };
 
-  const back = () => setActiveStep((prev: number) => prev - 1);
-
-  const submitAll = async (data: any) => {
-    const finalData = {
-      ...formData,
-      ...data,
-      status: "ativo",
-    };
-
+  const back = () => {
+    setActiveStep((prev) => prev - 1);
     try {
-      await addDoc(collection(db, "colaboradores"), finalData);
-      alert("Cadastro salvo com sucesso no Firebase!");
-      console.log("✅ Dados enviados:", finalData);
-      if (onFinish) onFinish();
-    } catch (error) {
-      console.error("Erro ao salvar:", error);
-      alert("Erro ao salvar os dados.");
+      const el = document.querySelector('[role="dialog"]') || window;
+      // @ts-ignore
+      el.scrollTo?.({ top: 0, behavior: "smooth" });
+    } catch {}
+  };
+
+  const goToReviewFromStep3 = (data: any) => {
+    setFormData((prev: any) => ({ ...prev, ...data }));
+    setActiveStep(3);
+  };
+
+  const mergeFromReview = (partial: any) => {
+    setFormData((prev: any) => ({ ...prev, ...partial }));
+  };
+
+  const submitAll = async () => {
+    try {
+      // 👉 garantimos gravar *também* o NOME do depto (compat/consulta offline)
+      const depId: string | undefined = formData?.departmentId || undefined;
+      let departamentoNome = formData?.departamento || "";
+
+      if (depId && !departamentoNome) {
+        const depSnap = await getDoc(doc(db, "departamentos", depId));
+        departamentoNome = String(depSnap.data()?.nome || "");
+      }
+
+      const payload = {
+        ...formData,
+        departmentId: depId || null,
+        departamento: departamentoNome || null,
+        status: formData.status ?? "ativo",
+        createdAt: serverTimestamp(),
+      };
+
+      // grava colaborador
+      const ref = await addDoc(collection(db, "colaboradores"), payload);
+
+      // ajusta contador do departamento (se houver)
+      if (depId) {
+        const batch = writeBatch(db);
+        batch.update(doc(db, "departamentos", depId), {
+          colaboradoresCount: increment(+1),
+        });
+        await batch.commit();
+      }
+
+      // log
+      await logEvent({
+        action: "colaborador:create",
+        actor: { uid: user?.uid, email: user?.email },
+        entity: { type: "colaborador", id: ref.id, name: formData?.nome || "" },
+        payload: { departmentId: depId || null, status: formData?.status ?? "ativo" },
+      });
+
+      showSnack("Cadastro salvo com sucesso!", "success");
+      onFinish?.();
+    } catch (e) {
+      console.error(e);
+      showSnack("Erro ao salvar cadastro. Tente novamente.", "error");
     }
   };
 
   return (
-    <Paper elevation={3} sx={{ p: 4, maxWidth: 600, mx: "auto", mt: 5 }}>
+    <Paper elevation={3} sx={{ p: 4, maxWidth: 720, mx: "auto", mt: 5 }}>
       <Stepper activeStep={activeStep} alternativeLabel>
-        {steps.map((label) => (
+        {steps.map((label, idx) => (
           <Step key={label}>
-            <StepLabel>{label}</StepLabel>
+            <StepLabel icon={idx + 1}>{label}</StepLabel>
           </Step>
         ))}
       </Stepper>
 
       <Box mt={4}>
-        {activeStep === 0 && (
-          <StepOne onNext={next} defaultValues={formData} />
-        )}
+        {activeStep === 0 && <StepOne onNext={next} defaultValues={formData} />}
+
         {activeStep === 1 && (
           <StepTwo onNext={next} onBack={back} defaultValues={formData} />
         )}
+
         {activeStep === 2 && (
           <StepThree
-            onSubmitFinal={submitAll}
+            onSubmitFinal={goToReviewFromStep3}
             onBack={back}
             defaultValues={formData}
           />
         )}
+
+        {activeStep === 3 && (
+          <StepReview
+            data={formData}
+            onBack={back}
+            onConfirm={submitAll}
+            onChange={mergeFromReview}
+          />
+        )}
       </Box>
+
+      <Snackbar
+        open={snack.open}
+        autoHideDuration={4000}
+        onClose={handleSnackClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackClose}
+          severity={snack.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snack.message}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 };
+
+export default StepForm;
