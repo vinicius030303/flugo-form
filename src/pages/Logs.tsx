@@ -24,7 +24,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { listRecentLogs, streamRecentLogs, type LogEntry } from "@/services/logs";
 
-const norm = (s: string) =>
+const norm = (s?: string) =>
   String(s || "").normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 
 function formatTs(ts?: any) {
@@ -101,7 +101,16 @@ export default function Logs() {
       alert("Não há dados para exportar.");
       return;
     }
-    const header = ["Data/Hora", "Ação", "Entidade", "Entidade ID", "Entidade Nome", "Ator (email)", "Ator (uid)", "Detalhes"];
+    const header = [
+      "Data/Hora",
+      "Ação",
+      "Entidade",
+      "Entidade ID",
+      "Entidade Nome",
+      "Ator (email)",
+      "Ator (uid)",
+      "Detalhes",
+    ];
     const rows = filtrados.map((l) => [
       formatTs(l.createdAt),
       l.action || "",

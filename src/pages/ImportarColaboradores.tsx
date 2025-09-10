@@ -51,7 +51,7 @@ type PreviewRow = Row & {
   _resolvedDeptName?: string;
 };
 
-const norm = (s: string) =>
+const norm = (s?: string) =>
   String(s || "").normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 
 export default function ImportarColaboradores() {

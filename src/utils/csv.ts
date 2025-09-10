@@ -10,10 +10,10 @@ export function parseCSV(text: string) {
   const sep = firstLine.split(";").length > firstLine.split(",").length ? ";" : ",";
 
   const lines = raw.split("\n");
-  const header = splitLine(lines[0], sep);
+  const header = splitLine(lines[0] ?? "", sep);
   const rows: string[][] = [];
   for (let i = 1; i < lines.length; i++) {
-    const line = lines[i].trim();
+    const line = (lines[i] || "").trim();
     if (!line) continue;
     rows.push(splitLine(line, sep));
   }
@@ -23,9 +23,9 @@ export function parseCSV(text: string) {
     const out: string[] = [];
     let cur = "", quoted = false;
     for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
+      const ch = line.charAt(i);
       if (ch === '"') {
-        if (quoted && line[i + 1] === '"') {
+        if (quoted && line.charAt(i + 1) === '"') {
           cur += '"'; i++;
         } else {
           quoted = !quoted;
