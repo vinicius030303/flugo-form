@@ -150,32 +150,32 @@ export default function StepReview({
 
       <Grid container spacing={1}>
         {/* Pessoais */}
-        <Grid item xs={12}>
+        <Grid xs={12}>
           <Typography variant="subtitle2">Dados pessoais</Typography>
         </Grid>
 
-        <Grid item xs={6}>Nome</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Nome</Grid>
+        <Grid xs={6}>
           <b>{data?.nome || "-"}</b>
         </Grid>
 
-        <Grid item xs={6}>CPF</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>CPF</Grid>
+        <Grid xs={6}>
           <b>{maskCPF(data?.cpf)}</b>
         </Grid>
 
-        <Grid item xs={6}>E-mail</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>E-mail</Grid>
+        <Grid xs={6}>
           <b>{data?.email || "-"}</b>
         </Grid>
 
-        <Grid item xs={6}>Telefone</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Telefone</Grid>
+        <Grid xs={6}>
           <b>{data?.telefone || "-"}</b>
         </Grid>
 
-        <Grid item xs={6}>Gênero</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Gênero</Grid>
+        <Grid xs={6}>
           <Chip
             size="small"
             label={labelGenero(data?.genero)}
@@ -189,52 +189,52 @@ export default function StepReview({
         </Grid>
 
         {/* Endereço */}
-        <Grid item xs={12} mt={2}>
+        <Grid xs={12} mt={2}>
           <Typography variant="subtitle2">Endereço</Typography>
         </Grid>
 
-        <Grid item xs={6}>CEP</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>CEP</Grid>
+        <Grid xs={6}>
           <b>{maskCEP(data?.cep)}</b>
         </Grid>
 
-        <Grid item xs={6}>Rua</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Rua</Grid>
+        <Grid xs={6}>
           <b>{data?.rua || "-"}</b>
         </Grid>
 
-        <Grid item xs={6}>Número</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Número</Grid>
+        <Grid xs={6}>
           <b>{data?.numero || "-"}</b>
         </Grid>
 
-        <Grid item xs={6}>Cidade</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Cidade</Grid>
+        <Grid xs={6}>
           <b>{data?.cidade || "-"}</b>
         </Grid>
 
-        <Grid item xs={6}>Estado</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Estado</Grid>
+        <Grid xs={6}>
           <b>{data?.estado || "-"}</b>
         </Grid>
 
         {/* Profissional */}
-        <Grid item xs={12} mt={2}>
+        <Grid xs={12} mt={2}>
           <Typography variant="subtitle2">Profissional</Typography>
         </Grid>
 
-        <Grid item xs={6}>Departamento</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Departamento</Grid>
+        <Grid xs={6}>
           <Chip size="small" label={data?.departamento || "-"} variant="outlined" />
         </Grid>
 
-        <Grid item xs={6}>Cargo</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Cargo</Grid>
+        <Grid xs={6}>
           <b>{data?.cargo || "-"}</b>
         </Grid>
 
-        <Grid item xs={6}>Status</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Status</Grid>
+        <Grid xs={6}>
           <Chip
             size="small"
             label={data?.status || "indefinido"}
@@ -242,23 +242,23 @@ export default function StepReview({
           />
         </Grid>
 
-        <Grid item xs={6}>Admissão</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Admissão</Grid>
+        <Grid xs={6}>
           <b>{formatDateBR(data?.admissao)}</b>
         </Grid>
 
-        <Grid item xs={6}>Nível</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Nível</Grid>
+        <Grid xs={6}>
           <b>{labelNivel(data?.nivel)}</b>
         </Grid>
 
-        <Grid item xs={6}>Gestor responsável</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Gestor responsável</Grid>
+        <Grid xs={6}>
           <b>{gestorLabel}</b>
         </Grid>
 
-        <Grid item xs={6}>Salário base</Grid>
-        <Grid item xs={6}>
+        <Grid xs={6}>Salário base</Grid>
+        <Grid xs={6}>
           <b>{formatCurrencyBR(data?.salarioBase)}</b>
         </Grid>
       </Grid>

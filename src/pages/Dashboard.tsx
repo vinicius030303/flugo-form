@@ -5,7 +5,6 @@ import {
   Stack,
   Typography,
   Chip,
-  Grid,
   Card,
   CardContent,
   LinearProgress,
@@ -14,6 +13,7 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
+import Grid from "@mui/material/Grid2"; // ✅ Grid v2
 import { db } from "@/services/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import type { Departamento } from "@/services/departamentos";
@@ -25,8 +25,8 @@ type Colaborador = {
   nome?: string;
   status?: string;
   genero?: Genero;
-  departmentId?: string;     // modelo novo
-  departamento?: string;     // legado (nome)
+  departmentId?: string; // modelo novo
+  departamento?: string; // legado (nome)
 };
 
 const norm = (s: string) =>
@@ -67,7 +67,10 @@ export default function Dashboard() {
 
   const totals = useMemo(() => {
     const total = colabs.length;
-    let ativos = 0, inativos = 0, male = 0, female = 0;
+    let ativos = 0,
+      inativos = 0,
+      male = 0,
+      female = 0;
     for (const c of colabs) {
       const st = String(c.status || "").toLowerCase();
       if (st === "ativo") ativos++;
@@ -80,7 +83,7 @@ export default function Dashboard() {
   }, [colabs]);
 
   const porDepartamento = useMemo(() => {
-    const counts = new Map<string, number>();      // chave = nome exibido
+    const counts = new Map<string, number>(); // chave = nome exibido
     for (const c of colabs) {
       let name = "—";
       if (c.departmentId) name = depNameById.get(c.departmentId) || "—";
@@ -102,7 +105,7 @@ export default function Dashboard() {
       </Stack>
 
       <Grid container spacing={2}>
-        <Grid item xs={12} md={3}>
+        <Grid xs={12} md={3}>
           <Card>
             <CardContent>
               <Typography variant="overline" color="text.secondary">Colaboradores</Typography>
@@ -115,7 +118,7 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={3}>
+        <Grid xs={12} md={3}>
           <Card>
             <CardContent>
               <Typography variant="overline" color="text.secondary">Gênero</Typography>
@@ -128,7 +131,7 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <Card>
             <CardContent>
               <Typography variant="overline" color="text.secondary">Departamentos (top 5)</Typography>
@@ -157,7 +160,7 @@ export default function Dashboard() {
         <Typography variant="subtitle1" gutterBottom>Colaboradores por departamento</Typography>
         <Grid container spacing={1}>
           {porDepartamento.map((d) => (
-            <Grid item xs={12} md={6} lg={4} key={d.nome}>
+            <Grid xs={12} md={6} lg={4} key={d.nome}>
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Typography>{d.nome || "—"}</Typography>
                 <Chip size="small" label={d.count} />
@@ -165,7 +168,7 @@ export default function Dashboard() {
             </Grid>
           ))}
           {porDepartamento.length === 0 && (
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Typography color="text.secondary">Nenhum colaborador cadastrado.</Typography>
             </Grid>
           )}
