@@ -3,3 +3,17 @@
 .env
 .env
 .env
+node_modules/
+dist/
+build/
+.vite/
+.next/
+out/
+coverage/
+.DS_Store
+.vscode/
+.idea/
+.env.local
+.env.*.local
+!.env.example
+*.log

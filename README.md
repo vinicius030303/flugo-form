@@ -14,14 +14,26 @@ O sistema permite registrar colaboradores via formulário multi-etapas, listar d
 
 ##  Funcionalidades
 
-- ✅ **Formulário multi-step**: Dados Pessoais → Endereço → Profissional  
-- ✅ **Integração com Firebase Firestore** para persistência de dados  
-- ✅ **Listagem com ordenação** clicável nas colunas  
-- ✅ **Avatares automáticos** via [DiceBear API](https://www.dicebear.com/)  
-- ✅ **Layout responsivo**, seguindo o protótipo recebido  
-- ✅ **Modal centralizado** para criar novos colaboradores  
-- ✅ **Fallback inteligente** para inicial do nome nos avatares  
-- ✅ **Código em TypeScript**, garantindo tipagem e segurança  
+- ✅ **Formulário multi-step (Stepper MUI)**: **Pessoais → Endereço → Profissional → Revisão**
+- ✅ **Validação por etapa** (React Hook Form + Zod) com bloqueio de avanço em caso de erro
+- ✅ **Máscaras**: **CPF** (###.###.###-##) com **validação forte** (dígitos verificadores), **Telefone** ((##) #####-####) e **CEP** (#####-###)
+- ✅ **Integração com Firebase Firestore** para persistência de dados
+- ✅ **Listagem com ordenação** clicável nas colunas
+- ✅ **Avatares automáticos** via [DiceBear API](https://www.dicebear.com/)
+- ✅ **Layout responsivo**, seguindo o protótipo recebido
+- ✅ **Modal centralizado** para criar novos colaboradores
+- ✅ **Fallback inteligente** para inicial do nome nos avatares
+- ✅ **Código em TypeScript**, garantindo tipagem e segurança
+
+
+---
+
+## Atualizações (set/2025)
+
+- **Stepper linear** com 4 etapas e **Revisão** final antes do envio
+- **Validação por etapa** (RHF + Zod) e bloqueio de avanço quando houver erros
+- **Máscaras** aplicadas a CPF/Telefone/CEP e **validação forte de CPF**
+- **Feedback de sucesso/erro** no envio ao Firebase
 
 ---
 
@@ -37,6 +49,23 @@ O sistema permite registrar colaboradores via formulário multi-etapas, listar d
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 ---
+
+
+## Conformidade com o desafio
+
+| Requisito                                        | Como foi atendido                                                                 
+|--------------------------------------------------|-----------------------------------------------------------------------------------
+| Formulário multi-step (Stepper MUI)              | **4 etapas:** Pessoais → Endereço → Profissional → **Revisão**                    
+| Validações **entre as etapas**                   | RHF + Zod; **botão Próximo** só avança se a etapa estiver válida                  
+| Feedback entre etapas                            | Mensagens de erro nos campos (+ alerta de etapa opcional)                         
+| **Navegação linear** (sem pular passos)          | `StepLabel` sem clique; steps futuros `disabled`                                   
+| **Revisão** antes do submit                      | `StepReview` mostrando todos os campos                                             
+| Todos os campos **required**                     | Zod (`min`, `refine`), máscaras; CPF com dígitos verificadores                     
+| Persistência no **Firebase**                     | `addDoc` em `colaboradores` + feedback de sucesso/erro                             
+| **Deploy** público                               | Vercel com `VITE_*` configuradas                                                   
+
+---
+
 
 ## 📂 Estrutura de pastas
 
