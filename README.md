@@ -70,35 +70,35 @@ O sistema permite registrar colaboradores via formulário multi-etapas, listar d
 ##  Estrutura de pastas
 
 .
-├── public/
-├── src/
-│   ├── assets/          # imagens, ícones, etc.
-│   ├── components/      # componentes reutilizáveis (UI)
-│   ├── pages/           # páginas (ex.: Login, Colaboradores, Departamentos, 404)
-│   ├── routes/          # rotas e guards (ex.: ProtectedRoute)
-│   ├── services/        # integrações (ex.: firebase.ts, firestore, auth)
-│   ├── hooks/           # hooks customizados
-│   ├── context/         # contexto global (ex.: AuthContext)
-│   ├── utils/           # helpers/formatadores/validadores
-│   ├── types/           # Tipos/Interfaces TypeScript
-│   └── styles/          # estilos globais/tema
-├── .editorconfig
-├── .env                  # variáveis de ambiente (Vite + Firebase)
-├── .eslintignore
-├── .eslintrc.cjs
-├── .gitignore
-├── .prettierignore
-├── .prettierrc
-├── firestore.rules       # regras do Firestore
-├── index.html
-├── package.json
-├── package-lock.json
-├── README.md
-├── tsconfig.app.json
-├── tsconfig.json
-├── tsconfig.node.json
-├── vite-env.d.ts
-└── vite.config.ts
+├── public/  
+├── src/  
+│     ├── assets/           # imagens, ícones, etc.  
+│     ├── components/       # componentes reutilizáveis (UI)  
+│     ├── pages/            # páginas (ex.: Login, Colaboradores, Departamentos, 404)  
+│     ├── routes/           # rotas e guards (ex.: ProtectedRoute)  
+│     ├── services/         # integrações (ex.: firebase.ts, firestore, auth)  
+│     ├── hooks/            # hooks customizados  
+│     ├── context/          # contexto global (ex.: AuthContext)  
+│     ├── utils/            # helpers/formatadores/validadores  
+│     ├── types/            # Tipos/Interfaces TypeScript  
+│     └── styles/           # estilos globais/tema  
+├──  .editorconfig
+├──  .env                   # variáveis de ambiente (Vite + Firebase)  
+├──  .eslintignore  
+├──  .eslintrc.cjs  
+├──  .gitignore  
+├──  .prettierignore  
+├──  .prettierrc  
+├──  firestore.rules         # regras do Firestore  
+├──  index.html  
+├──  package.json  
+├──  package-lock.json  
+├──  README.md  
+├──  tsconfig.app.json  
+├──  tsconfig.json  
+├──  tsconfig.node.json  
+├──  vite-env.d.ts  
+└──  vite.config.ts  
 
 
 ---
