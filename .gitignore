@@ -1,5 +1,28 @@
-# Ignora arquivos de variáveis de ambiente
-.env.env
+﻿# dependências e builds
+node_modules/
+dist/
+build/
+.vite/
+.next/
+out/
+coverage/
+.tmp/
+temp/
+
+# SO/editor
+.DS_Store
+.vscode/
+.idea/
+
+# envs (mantém o exemplo)
 .env
-.env
-.env
+.env.local
+.env.*.local
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
