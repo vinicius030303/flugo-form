@@ -1,42 +1,78 @@
-import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Avatar, IconButton, Menu, MenuItem } from "@mui/material";
+import type React from "react";
+import {
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Avatar,
+  IconButton,
+  Menu,
+  MenuItem,
+  Tooltip,
+  Typography,
+  Chip,
+  useTheme,
+} from "@mui/material";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-import { useColorMode } from "../App";
-import GroupIcon from '@mui/icons-material/Group';
-// ⬇️ Alterado para importar MouseEvent como tipo
-import { useState } from "react";
+import GroupIcon from "@mui/icons-material/Group";
+import BusinessIcon from "@mui/icons-material/Business";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useEffect, useState } from "react";
 import type { MouseEvent } from "react";
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import logo from '../assets/logo.png';
-import '../global.css'; // Importa o CSS global
+import { NavLink, useLocation, useNavigate, Outlet } from "react-router-dom";
 
-const currentUser = {
-  name: "Ge",
-  avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=Ge&gender=male",
-};
+import { useColorMode } from "../App";
+import { useAuth } from "@/contexts/AuthContext";
+import logo from "../assets/logo.png";
+import "../global.css";
 
-interface MainLayoutProps {
-  children: React.ReactNode;
-}
+// 🔴 contador em tempo real
+import { db } from "@/services/firebase";
+import { collection, onSnapshot } from "firebase/firestore";
 
-export const MainLayout = ({ children }: MainLayoutProps) => {
+export const MainLayout: React.FC = () => {
   const { toggleColorMode } = useColorMode();
-  const [darkMode, setDarkMode] = useState(false);
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
+
+  const { user, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+  const handleMenuClose = () => setAnchorEl(null);
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login", { replace: true });
+    } finally {
+      handleMenuClose();
+    }
   };
 
-  const handleLogout = () => {
-    console.log("Usuário deslogado!");
-    handleMenuClose();
-  };
+  const isColaboradores = location.pathname.startsWith("/colaboradores");
+  const isDepartamentos = location.pathname.startsWith("/departamentos");
+  const isDev = location.pathname.startsWith("/dev"); // 👈 alinha com App.tsx
+
+  // 👇 total de colaboradores em tempo real
+  const [totalColabs, setTotalColabs] = useState<number>(0);
+  useEffect(() => {
+    const colRef = collection(db, "colaboradores");
+    const unsub = onSnapshot(colRef, (snap) => setTotalColabs(snap.size));
+    return unsub;
+  }, []);
 
   return (
     <Box sx={{ display: "flex", height: "100vh", width: "100%", overflow: "hidden" }}>
@@ -51,14 +87,58 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
         <Box sx={{ p: 2, display: "flex", alignItems: "center", gap: 1 }}>
           <img src={logo} alt="Logo Flugo" style={{ height: "24px" }} />
         </Box>
+
         <List>
           <ListItem disablePadding>
-            <ListItemButton selected>
+            <ListItemButton
+              component={NavLink}
+              to="/colaboradores"
+              selected={isColaboradores}
+              sx={{ gap: 1 }}
+            >
               <ListItemIcon>
                 <GroupIcon />
               </ListItemIcon>
-              <ListItemText primary="Colaboradores" />
-              <ChevronRightIcon sx={{ color: 'text.secondary' }} />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
+                <ListItemText primary="Colaboradores" />
+                <Chip
+                  label={totalColabs}
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                  sx={{ ml: "auto" }}
+                />
+              </Box>
+              <ChevronRightIcon sx={{ color: "text.secondary" }} />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              component={NavLink}
+              to="/departamentos"
+              selected={isDepartamentos}
+            >
+              <ListItemIcon>
+                <BusinessIcon />
+              </ListItemIcon>
+              <ListItemText primary="Departamentos" />
+              <ChevronRightIcon sx={{ color: "text.secondary" }} />
+            </ListItemButton>
+          </ListItem>
+
+          {/* ✅ Dev Tools (rota /dev conforme App.tsx) */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={NavLink}
+              to="/dev"
+              selected={isDev}
+            >
+              <ListItemIcon>
+                <ListAltIcon />
+              </ListItemIcon>
+              <ListItemText primary="Dev Tools" />
+              <ChevronRightIcon sx={{ color: "text.secondary" }} />
             </ListItemButton>
           </ListItem>
         </List>
@@ -74,23 +154,36 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
           width: "100%",
         }}
       >
+        {/* Top bar */}
         <Box
           sx={{
             display: "flex",
             justifyContent: "flex-end",
             alignItems: "center",
+            gap: 1,
             p: 2,
           }}
         >
+          {user?.email && (
+            <Typography variant="body2" color="text.secondary">
+              {user.email}
+            </Typography>
+          )}
+
           <IconButton
             onClick={handleMenuClick}
             size="small"
-            sx={{ ml: 2 }}
-            aria-controls={openMenu ? 'account-menu' : undefined}
+            sx={{ ml: 1 }}
+            aria-controls={openMenu ? "account-menu" : undefined}
             aria-haspopup="true"
-            aria-expanded={openMenu ? 'true' : undefined}
+            aria-expanded={openMenu ? "true" : undefined}
           >
-            <Avatar src={currentUser.avatarUrl} alt={currentUser.name} />
+            <Avatar
+              src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(
+                user?.email || "user"
+              )}`}
+              alt={user?.email || "Usuário"}
+            />
           </IconButton>
 
           <Menu
@@ -102,46 +195,48 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
             PaperProps={{
               elevation: 0,
               sx: {
-                overflow: 'visible',
-                filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                overflow: "visible",
+                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
                 mt: 1.5,
-                '& .MuiAvatar-root': {
+                "& .MuiAvatar-root": {
                   width: 32,
                   height: 32,
                   ml: -0.5,
                   mr: 1,
                 },
-                '&::before': {
+                "&::before": {
                   content: '""',
-                  display: 'block',
-                  position: 'absolute',
+                  display: "block",
+                  position: "absolute",
                   top: 0,
                   right: 14,
                   width: 10,
                   height: 10,
-                  bgcolor: 'background.paper',
-                  transform: 'translateY(-50%) rotate(45deg)',
+                  bgcolor: "background.paper",
+                  transform: "translateY(-50%) rotate(45deg)",
                   zIndex: 0,
                 },
               },
             }}
-            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            transformOrigin={{ horizontal: "right", vertical: "top" }}
+            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
-            <MenuItem onClick={handleLogout}>Sair</MenuItem>
+            <MenuItem onClick={handleLogout}>
+              <LogoutIcon fontSize="small" style={{ marginRight: 8 }} />
+              Sair
+            </MenuItem>
           </Menu>
 
-          <IconButton
-            onClick={() => {
-              // ⬇️ Corrigido tipo para boolean, já que o state é booleano
-              setDarkMode((prev: boolean) => !prev);
-              toggleColorMode();
-            }}
-            size="small"
-            color="inherit"
-          >
-            {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
+          <Tooltip title={isDark ? "Tema claro" : "Tema escuro"}>
+            <IconButton
+              onClick={toggleColorMode}
+              size="small"
+              color="inherit"
+              aria-label="Alternar tema"
+            >
+              {isDark ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+          </Tooltip>
         </Box>
 
         <Box
@@ -153,7 +248,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
             minWidth: 0,
           }}
         >
-          {children}
+          <Outlet />
         </Box>
       </Box>
     </Box>
