@@ -30,38 +30,24 @@ import {
 import { db } from "@/services/firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
 
-// validação por ID (agora com nível, gestor e salário)
+// ===== Schema (compatível com versões antigas do zod) =====
 const schema = z
   .object({
     cargo: z.string().min(1, "Cargo é obrigatório"),
     departmentId: z.string().min(1, "Departamento é obrigatório"),
     admissao: z.string().min(1, "Data de admissão é obrigatória"),
-    nivel: z.enum(["junior", "pleno", "senior", "gestor"], {
-      required_error: "Nível é obrigatório",
-      invalid_type_error: "Nível inválido",
-    }),
-    // permitir string vazia internamente e validar via superRefine
-    gestorResponsavelId: z
-      .string()
-      .optional()
-      .transform((v) => (v ?? "").trim()),
-    salarioBase: z.coerce
-      .number({
-        invalid_type_error: "Salário deve ser um número",
-      })
-      .min(0, "Salário deve ser maior ou igual a 0"),
+    nivel: z.enum(["junior", "pleno", "senior", "gestor"]),
+    // pode vir vazio se nível = gestor
+    gestorResponsavelId: z.string().optional().transform((v) => (v ?? "").trim()),
+    // coage string/number → number e valida >= 0
+    salarioBase: z.coerce.number().min(0, "Salário deve ser maior ou igual a 0"),
   })
-  .superRefine((val, ctx) => {
-    if (val.nivel !== "gestor" && !val.gestorResponsavelId) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Selecione um gestor responsável",
-        path: ["gestorResponsavelId"],
-      });
-    }
-  });
+  .refine(
+    (val) => val.nivel === "gestor" || !!val.gestorResponsavelId,
+    { path: ["gestorResponsavelId"], message: "Selecione um gestor responsável" }
+  );
 
-type FormData = z.infer<typeof schema>;
+export type FormData = z.infer<typeof schema>;
 
 interface StepThreeProps {
   onBack: () => void;
@@ -81,11 +67,7 @@ type GestorLite = {
   email?: string;
 };
 
-export const StepThree = ({
-  onBack,
-  onSubmitFinal,
-  defaultValues,
-}: StepThreeProps) => {
+export const StepThree = ({ onBack, onSubmitFinal, defaultValues }: StepThreeProps) => {
   const {
     register,
     handleSubmit,
@@ -101,8 +83,7 @@ export const StepThree = ({
       departmentId: (defaultValues as any)?.departmentId ?? "",
       admissao: defaultValues?.admissao ?? "",
       nivel: (defaultValues as any)?.nivel ?? "junior",
-      gestorResponsavelId:
-        (defaultValues as any)?.gestorResponsavelId?.trim?.() ?? "",
+      gestorResponsavelId: (defaultValues as any)?.gestorResponsavelId?.trim?.() ?? "",
       salarioBase:
         typeof (defaultValues as any)?.salarioBase === "number"
           ? (defaultValues as any)?.salarioBase
@@ -137,9 +118,7 @@ export const StepThree = ({
     try {
       const data = await listarDepartamentos();
       const ordered = [...data].sort((a, b) =>
-        (a.nome || "").localeCompare(b.nome || "", "pt-BR", {
-          sensitivity: "base",
-        })
+        (a.nome || "").localeCompare(b.nome || "", "pt-BR", { sensitivity: "base" })
       );
       setDepartamentos(ordered);
       return ordered;
@@ -151,28 +130,16 @@ export const StepThree = ({
   async function carregarGestores(): Promise<GestorLite[]> {
     setLoadingGestores(true);
     try {
-      const q = query(
-        collection(db, "colaboradores"),
-        where("nivel", "==", "gestor")
-      );
+      const q = query(collection(db, "colaboradores"), where("nivel", "==", "gestor"));
       const snap = await getDocs(q);
       const items: GestorLite[] = snap.docs.map((d) => {
         const data = d.data() as any;
-        return {
-          id: d.id,
-          nome: data?.nome || "",
-          email: data?.email || "",
-        };
+        return { id: d.id, nome: data?.nome || "", email: data?.email || "" };
       });
-      items.sort((a, b) =>
-        (a.nome || "").localeCompare(b.nome || "", "pt-BR", {
-          sensitivity: "base",
-        })
-      );
+      items.sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR", { sensitivity: "base" }));
       setGestores(items);
       return items;
     } catch {
-      // silencia e deixa a lista vazia; a validação já impede submit quando necessário
       setGestores([]);
       return [];
     } finally {
@@ -183,14 +150,11 @@ export const StepThree = ({
   useEffect(() => {
     (async () => {
       const list = await carregarDepartamentos();
-
       // compat: casar pelo nome quando vier apenas "departamento"
       const existingDeptName = (defaultValues as any)?.departamento?.trim();
       const currentId = (defaultValues as any)?.departmentId;
       if (!currentId && existingDeptName) {
-        const found = list.find(
-          (d) => norm(d.nome || "") === norm(existingDeptName)
-        );
+        const found = list.find((d) => norm(d.nome || "") === norm(existingDeptName));
         if (found?.id) {
           setValue("departmentId", found.id, { shouldValidate: true });
         }
@@ -211,10 +175,7 @@ export const StepThree = ({
   }, [nivelAtual]);
 
   const onSubmit = (data: FormData) => {
-    const deptName =
-      depMap.get(data.departmentId) ||
-      (defaultValues as any)?.departamento ||
-      "";
+    const deptName = depMap.get(data.departmentId) || (defaultValues as any)?.departamento || "";
     onSubmitFinal({ ...data, departamento: deptName });
   };
 
@@ -235,11 +196,7 @@ export const StepThree = ({
       const jaExiste = prev.some((d) => d.id === novo.id);
       if (jaExiste) return prev;
       const next = [...prev, novo];
-      next.sort((a, b) =>
-        (a.nome || "").localeCompare(b.nome || "", "pt-BR", {
-          sensitivity: "base",
-        })
-      );
+      next.sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR", { sensitivity: "base" }));
       return next;
     });
   };
@@ -252,9 +209,7 @@ export const StepThree = ({
     }
 
     // evita duplicado (case/acentos)
-    const existe = departamentos.some(
-      (d) => norm(d.nome || "") === norm(trimmed)
-    );
+    const existe = departamentos.some((d) => norm(d.nome || "") === norm(trimmed));
     if (existe) {
       setDepError("Já existe um departamento com esse nome.");
       return;
@@ -264,16 +219,11 @@ export const StepThree = ({
       setSavingDep(true);
 
       // cria e retorna o id
-      const returnedId = (await criarDepartamento(trimmed)) as
-        | string
-        | undefined;
+      const returnedId = (await criarDepartamento(trimmed)) as string | undefined;
 
       if (returnedId) {
         inserirLocalOrdenado({ id: returnedId, nome: trimmed });
-        setValue("departmentId", returnedId, {
-          shouldValidate: true,
-          shouldDirty: true,
-        });
+        setValue("departmentId", returnedId, { shouldValidate: true, shouldDirty: true });
         setFocus("departmentId");
         setDepDialogOpen(false);
         return;
@@ -285,20 +235,13 @@ export const StepThree = ({
         await new Promise((r) => setTimeout(r, 300));
         fresh = await carregarDepartamentos();
       }
-      const escolhido = fresh.find(
-        (d) => norm(d.nome || "") === norm(trimmed) && d.id
-      );
+      const escolhido = fresh.find((d) => norm(d.nome || "") === norm(trimmed) && d.id);
       if (escolhido?.id) {
-        setValue("departmentId", escolhido.id, {
-          shouldValidate: true,
-          shouldDirty: true,
-        });
+        setValue("departmentId", escolhido.id, { shouldValidate: true, shouldDirty: true });
         setFocus("departmentId");
         setDepDialogOpen(false);
       } else {
-        setDepError(
-          "Não foi possível obter o ID do novo departamento. Tente novamente."
-        );
+        setDepError("Não foi possível obter o ID do novo departamento. Tente novamente.");
       }
     } catch {
       setDepError("Não foi possível criar o departamento.");
@@ -317,10 +260,7 @@ export const StepThree = ({
     null;
 
   const departamentosComId = useMemo(
-    () =>
-      departamentos.filter(
-        (d): d is Dept & { id: string } => Boolean(d.id)
-      ),
+    () => departamentos.filter((d): d is Dept & { id: string } => Boolean(d.id)),
     [departamentos]
   );
 
@@ -345,21 +285,11 @@ export const StepThree = ({
 
           {/* Departamento via Autocomplete por ID + botão Novo */}
           <Box>
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-              mb={0.5}
-            >
+            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={0.5}>
               <InputLabel shrink>Departamento</InputLabel>
               <Tooltip title="Criar um novo departamento">
                 <span>
-                  <Button
-                    size="small"
-                    variant="text"
-                    onClick={abrirNovoDep}
-                    disabled={loadingDeps || savingDep}
-                  >
+                  <Button size="small" variant="text" onClick={abrirNovoDep} disabled={loadingDeps || savingDep}>
                     Novo departamento
                   </Button>
                 </span>
@@ -370,12 +300,11 @@ export const StepThree = ({
               name="departmentId"
               control={control}
               render={({ field }) => {
-                const current =
-                  departamentosComId.find((d) => d.id === field.value) || null;
+                const current = departamentosComId.find((d) => d.id === field.value) || null;
                 return (
                   <FormControl fullWidth error={!!errors.departmentId}>
                     <Autocomplete
-                      disablePortal // 👈 evita “menu viajando” dentro do Modal
+                      disablePortal // evita “menu viajando” dentro do Modal
                       loading={loadingDeps}
                       options={departamentosComId}
                       getOptionLabel={(o) => o.nome || ""}
@@ -391,12 +320,9 @@ export const StepThree = ({
                           helperText={errors.departmentId?.message || " "}
                         />
                       )}
-                      // evita cortar o popup e mantém posição correta no modal
                       ListboxProps={{ style: { maxHeight: 260 } }}
                     />
-                    <FormHelperText>
-                      {errors.departmentId?.message}
-                    </FormHelperText>
+                    <FormHelperText>{errors.departmentId?.message}</FormHelperText>
                   </FormControl>
                 );
               }}
@@ -436,8 +362,7 @@ export const StepThree = ({
               name="gestorResponsavelId"
               control={control}
               render={({ field }) => {
-                const current =
-                  gestores.find((g) => g.id === field.value) || null;
+                const current = gestores.find((g) => g.id === field.value) || null;
                 return (
                   <Box>
                     <InputLabel shrink>Gestor responsável</InputLabel>
@@ -445,11 +370,7 @@ export const StepThree = ({
                       disablePortal
                       loading={loadingGestores}
                       options={gestores}
-                      getOptionLabel={(o) =>
-                        o?.nome
-                          ? `${o.nome}${o.email ? ` (${o.email})` : ""}`
-                          : o?.email || ""
-                      }
+                      getOptionLabel={(o) => (o?.nome ? `${o.nome}${o.email ? ` (${o.email})` : ""}` : o?.email || "")}
                       value={current}
                       onOpen={carregarGestores}
                       onChange={(_, opt) => field.onChange(opt?.id ?? "")}
@@ -491,12 +412,7 @@ export const StepThree = ({
             <Button variant="outlined" onClick={onBack}>
               Voltar
             </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              color="success"
-              disabled={isSubmitting || loadingDeps || savingDep}
-            >
+            <Button type="submit" variant="contained" color="success" disabled={isSubmitting || loadingDeps || savingDep}>
               Finalizar
             </Button>
           </Box>
@@ -504,12 +420,7 @@ export const StepThree = ({
       </form>
 
       {/* Dialogo: Novo departamento */}
-      <Dialog
-        open={depDialogOpen}
-        onClose={() => setDepDialogOpen(false)}
-        fullWidth
-        maxWidth="sm"
-      >
+      <Dialog open={depDialogOpen} onClose={() => setDepDialogOpen(false)} fullWidth maxWidth="sm">
         <DialogTitle>Novo departamento</DialogTitle>
         <DialogContent>
           <TextField
