@@ -13,7 +13,7 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2"; // ✅ Grid v2
+import Grid from "@mui/material/Grid"; // ✅ Grid v1 (container/item)
 import { db } from "@/services/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import type { Departamento } from "@/services/departamentos";
@@ -43,7 +43,9 @@ export default function Dashboard() {
         snap.docs
           .map((d) => ({ id: d.id, ...(d.data() as any) }))
           .sort((a, b) =>
-            (a.nome || "").localeCompare(b.nome || "", "pt-BR", { sensitivity: "base" })
+            (a.nome || "").localeCompare(b.nome || "", "pt-BR", {
+              sensitivity: "base",
+            })
           )
       );
     });
@@ -91,7 +93,11 @@ export default function Dashboard() {
       counts.set(name, (counts.get(name) || 0) + 1);
     }
     const arr = Array.from(counts, ([nome, count]) => ({ nome, count }));
-    arr.sort((a, b) => (a.count === b.count ? norm(a.nome).localeCompare(norm(b.nome)) : b.count - a.count));
+    arr.sort((a, b) =>
+      a.count === b.count
+        ? norm(a.nome).localeCompare(norm(b.nome))
+        : b.count - a.count
+    );
     return arr;
   }, [colabs, depNameById]);
 
@@ -99,30 +105,53 @@ export default function Dashboard() {
 
   return (
     <Box sx={{ p: 2 }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2} flexWrap="wrap" spacing={2}>
-        <Typography variant="h4" fontWeight={600}>Dashboard</Typography>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        mb={2}
+        flexWrap="wrap"
+        gap={2}
+      >
+        <Typography variant="h4" fontWeight={600}>
+          Dashboard
+        </Typography>
         {loading && <LinearProgress sx={{ width: 240 }} />}
       </Stack>
 
       <Grid container spacing={2}>
-        <Grid xs={12} md={3}>
+        <Grid item xs={12} md={3}>
           <Card>
             <CardContent>
-              <Typography variant="overline" color="text.secondary">Colaboradores</Typography>
+              <Typography variant="overline" color="text.secondary">
+                Colaboradores
+              </Typography>
               <Typography variant="h4">{totals.total}</Typography>
               <Stack direction="row" spacing={1} mt={1}>
-                <Chip size="small" label={`Ativos: ${totals.ativos}`} color="success" />
-                <Chip size="small" label={`Inativos: ${totals.inativos}`} color="default" />
+                <Chip
+                  size="small"
+                  label={`Ativos: ${totals.ativos}`}
+                  color="success"
+                />
+                <Chip
+                  size="small"
+                  label={`Inativos: ${totals.inativos}`}
+                  color="default"
+                />
               </Stack>
             </CardContent>
           </Card>
         </Grid>
 
-        <Grid xs={12} md={3}>
+        <Grid item xs={12} md={3}>
           <Card>
             <CardContent>
-              <Typography variant="overline" color="text.secondary">Gênero</Typography>
-              <Typography variant="h4">{totals.male + totals.female}</Typography>
+              <Typography variant="overline" color="text.secondary">
+                Gênero
+              </Typography>
+              <Typography variant="h4">
+                {totals.male + totals.female}
+              </Typography>
               <Stack direction="row" spacing={1} mt={1}>
                 <Chip size="small" label={`Masc: ${totals.male}`} color="primary" />
                 <Chip size="small" label={`Fem: ${totals.female}`} color="secondary" />
@@ -131,21 +160,32 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-        <Grid xs={12} md={6}>
+        <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
-              <Typography variant="overline" color="text.secondary">Departamentos (top 5)</Typography>
+              <Typography variant="overline" color="text.secondary">
+                Departamentos (top 5)
+              </Typography>
               <List dense>
                 {top5.length === 0 ? (
-                  <ListItem><ListItemText primary="Sem dados ainda" /></ListItem>
-                ) : top5.map((d) => (
-                  <ListItem key={d.nome}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
-                      <ListItemText primary={d.nome || "—"} />
-                      <Chip size="small" label={d.count} />
-                    </Stack>
+                  <ListItem>
+                    <ListItemText primary="Sem dados ainda" />
                   </ListItem>
-                ))}
+                ) : (
+                  top5.map((d) => (
+                    <ListItem key={d.nome}>
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        sx={{ width: "100%" }}
+                      >
+                        <ListItemText primary={d.nome || "—"} />
+                        <Chip size="small" label={d.count} />
+                      </Stack>
+                    </ListItem>
+                  ))
+                )}
               </List>
               <Divider sx={{ my: 1 }} />
               <Typography variant="caption" color="text.secondary">
@@ -157,19 +197,27 @@ export default function Dashboard() {
       </Grid>
 
       <Paper sx={{ mt: 2, p: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>Colaboradores por departamento</Typography>
+        <Typography variant="subtitle1" gutterBottom>
+          Colaboradores por departamento
+        </Typography>
         <Grid container spacing={1}>
           {porDepartamento.map((d) => (
-            <Grid xs={12} md={6} lg={4} key={d.nome}>
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Grid item xs={12} md={6} lg={4} key={d.nome}>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 <Typography>{d.nome || "—"}</Typography>
                 <Chip size="small" label={d.count} />
               </Stack>
             </Grid>
           ))}
           {porDepartamento.length === 0 && (
-            <Grid xs={12}>
-              <Typography color="text.secondary">Nenhum colaborador cadastrado.</Typography>
+            <Grid item xs={12}>
+              <Typography color="text.secondary">
+                Nenhum colaborador cadastrado.
+              </Typography>
             </Grid>
           )}
         </Grid>
