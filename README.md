@@ -69,38 +69,38 @@ O sistema permite registrar colaboradores via formulário multi-etapas, listar d
 
 ##  Estrutura de pastas
 
+```text
 .
-├── public/  
-├── src/  
-│     ├── assets/           # imagens, ícones, etc.  
-│     ├── components/       # componentes reutilizáveis (UI)  
-│     ├── pages/            # páginas (ex.: Login, Colaboradores, Departamentos, 404)  
-│     ├── routes/           # rotas e guards (ex.: ProtectedRoute)  
-│     ├── services/         # integrações (ex.: firebase.ts, firestore, auth)  
-│     ├── hooks/            # hooks customizados  
-│     ├── context/          # contexto global (ex.: AuthContext)  
-│     ├── utils/            # helpers/formatadores/validadores  
-│     ├── types/            # Tipos/Interfaces TypeScript  
-│     └── styles/           # estilos globais/tema  
-├──  .editorconfig
-├──  .env                   # variáveis de ambiente (Vite + Firebase)  
-├──  .eslintignore  
-├──  .eslintrc.cjs  
-├──  .gitignore  
-├──  .prettierignore  
-├──  .prettierrc  
-├──  firestore.rules         # regras do Firestore  
-├──  index.html  
-├──  package.json  
-├──  package-lock.json  
-├──  README.md  
-├──  tsconfig.app.json  
-├──  tsconfig.json  
-├──  tsconfig.node.json  
-├──  vite-env.d.ts  
-└──  vite.config.ts  
-
-
+├── public/
+├── src/
+│   ├── assets/            # imagens, ícones, etc.
+│   ├── components/        # componentes reutilizáveis (UI)
+│   ├── pages/             # páginas (ex.: Login, Colaboradores, Departamentos, 404)
+│   ├── routes/            # rotas e guards (ex.: ProtectedRoute)
+│   ├── services/          # integrações (ex.: firebase.ts, firestore, auth)
+│   ├── hooks/             # hooks customizados
+│   ├── context/           # contexto global (ex.: AuthContext)
+│   ├── utils/             # helpers/formatadores/validadores
+│   ├── types/             # Tipos/Interfaces TypeScript
+│   └── styles/            # estilos globais/tema
+├── .editorconfig
+├── .env                   # variáveis de ambiente (Vite + Firebase)
+├── .eslintignore
+├── .eslintrc.cjs
+├── .gitignore
+├── .prettierignore
+├── .prettierrc
+├── firestore.rules        # regras do Firestore
+├── index.html
+├── package.json
+├── package-lock.json
+├── README.md
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+├── vite-env.d.ts
+└── vite.config.ts
+```
 ---
 
 ##  Como rodar localmente
@@ -293,7 +293,7 @@ npm run dev
 
 ##  Links
 
-- **Deploy na Vercel**: [https://flugo-form.vercel.app](https://flugo-form.vercel.app)
+- **Deploy na Vercel**: https://flugo-form-vinicius030303s-projects.vercel.app/login
 - **Protótipo no Figma**: [Link do protótipo](https://www.figma.com/proto/r7xOsboMOQlMpEx8D5kH3a/Desafio-Flugo?node-id=2101-9297&t=ZcgP4ZVsOtCzzCIN-1)
 - **Repositório GitHub**: [https://github.com/vinicius030303/flugo-form](https://github.com/vinicius030303/flugo-form)
 
