@@ -24,7 +24,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { listRecentLogs, streamRecentLogs, type LogEntry } from "@/services/logs";
 
-const norm = (s?: string) =>
+const norm = (s?: string | null) =>
   String(s || "").normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 
 function formatTs(ts?: any) {
@@ -136,9 +136,9 @@ export default function Logs() {
 
   return (
     <Box sx={{ p: 2, width: "100%" }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2} gap={2} flexWrap="wrap">
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2} spacing={1} flexWrap="wrap">
         <Typography variant="h4" fontWeight={600}>Logs</Typography>
-        <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
+        <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center">
           <TextField size="small" label="Buscar (texto livre)" value={q} onChange={(e) => setQ(e.target.value)} />
           <FormControl size="small" sx={{ minWidth: 200 }}>
             <InputLabel id="act-label">Ação</InputLabel>

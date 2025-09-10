@@ -291,7 +291,10 @@ export const Colaboradores = () => {
 
       setColaboradores(docs);
       setSelectedIds([]);
-      setLastDoc(snap.docs.length ? snap.docs[snap.docs.length - 1] : null);
+      const last = snap.docs.length
+        ? (snap.docs[snap.docs.length - 1] as QueryDocumentSnapshot<DocumentData>)
+        : null;
+      setLastDoc(last);
       setHasMore(snap.size === PAGE_SIZE);
     } catch (e) {
       console.error(e);
@@ -333,7 +336,10 @@ export const Colaboradores = () => {
 
       setColaboradores((prev) => [...prev, ...docs]);
       setSelectedIds([]);
-      setLastDoc(snap.docs.length ? snap.docs[snap.docs.length - 1] : lastDoc);
+      const lastMore = snap.docs.length
+        ? (snap.docs[snap.docs.length - 1] as QueryDocumentSnapshot<DocumentData>)
+        : lastDoc;
+      setLastDoc(lastMore ?? null);
       setHasMore(snap.size === PAGE_SIZE);
     } catch (e) {
       console.error(e);
@@ -1275,7 +1281,7 @@ export const Colaboradores = () => {
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={8} align="center">
-                      <Stack direction="row" justifyContent="center" alignItems="center" gap={1}>
+                      <Stack direction="row" justifyContent="center" alignItems="center" spacing={1}>
                         <CircularProgress size={20} /> Carregando...
                       </Stack>
                     </TableCell>
@@ -1401,7 +1407,7 @@ export const Colaboradores = () => {
                         size="small"
                       >
                         {loadingMore ? (
-                          <Stack direction="row" alignItems="center" gap={1}>
+                          <Stack direction="row" alignItems="center" spacing={1}>
                             <CircularProgress size={18} /> Carregando...
                           </Stack>
                         ) : (

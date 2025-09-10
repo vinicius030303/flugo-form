@@ -96,7 +96,7 @@ export default function Dashboard() {
 
   return (
     <Box sx={{ p: 2 }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2} flexWrap="wrap" gap={2}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2} flexWrap="wrap" spacing={2}>
         <Typography variant="h4" fontWeight={600}>Dashboard</Typography>
         {loading && <LinearProgress sx={{ width: 240 }} />}
       </Stack>
@@ -136,8 +136,11 @@ export default function Dashboard() {
                 {top5.length === 0 ? (
                   <ListItem><ListItemText primary="Sem dados ainda" /></ListItem>
                 ) : top5.map((d) => (
-                  <ListItem key={d.nome} secondaryAction={<Chip size="small" label={d.count} />}>
-                    <ListItemText primary={d.nome || "—"} />
+                  <ListItem key={d.nome}>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
+                      <ListItemText primary={d.nome || "—"} />
+                      <Chip size="small" label={d.count} />
+                    </Stack>
                   </ListItem>
                 ))}
               </List>
